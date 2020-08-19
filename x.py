@@ -20,6 +20,13 @@ memory = [   # think of as a big array of bytes, 8-bits per byte
 
 registers = [0] * 8
 
+# Load the program file
+with open("prog1") as f:
+    for line in f:
+        print(line, end ='')
+
+sys.exit(0)
+
 running = True
 
 pc = 0   # Program Counter, the index into memory of the currently-executing instruction
@@ -47,3 +54,8 @@ while running:
 		print(registers[reg_num])
 
 		pc += 2
+
+    # This code doesn't work for the beej machines, but works for ls-8
+    # number_of_arguments = ir >> 6
+    # size_of_this_instruction = number_of_arguments + 1
+    # pc += size_of_this_instruction
