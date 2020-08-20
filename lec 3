@@ -8,3 +8,22 @@ Store pushed items in RAM
 Pointer to the top of the Stack
 
 
+
+Registers
+---------
+R0: 12
+R1: 32
+R2: 4A
+.
+.
+.R7: F4 (this is the stack pointer)
+
+
+Instructions
+------------
+PUSH R0 <<
+PUSH R1
+POP R2
+POP R1
+
+

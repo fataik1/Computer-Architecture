@@ -14,9 +14,18 @@ class CPU:
         self.branchtable = {
             0b10000010: self.LDI,
             0b01000111: self.PRN,
+            0b10100000: self.ADD,
+            0b10100001: self.SUB,
             0b10100010: self.MUL,
+            0b10100011: self.DIV,
+            0b10101000: self.AND,
+            0b01100101: self.INC,
+            0b01000101: self.PUSH,
+            0b01000110: self.POP,
             0b00000001: self.HLT 
         }
+        self.sp = 7
+        self.reg[self.sp] = 0xF4
 
     # print(sys.argv[0])
     # sys.exit(0)
@@ -25,18 +34,63 @@ class CPU:
         reg_index = self.ram_read(self.pc + 1)
         reg_value = self.ram_read(self.pc + 2)
         self.reg[reg_index] = reg_value
-        #self.pc += 3
     
     def PRN(self): # handles the PRN instruction
         reg_index = self.ram_read(self.pc + 1)
         print(self.reg[reg_index])
-        #self.pc += 2
+
+    def ADD(self): #handles the ADD instructions
+        reg_a = self.ram_read(self.pc + 1)
+        reg_b = self.ram_read(self.pc + 2)
+        self.alu('ADD', reg_a, reg_b) 
+
+    def SUB(self):   #handles the SUB instructions
+        reg_a = self.ram_read(self.pc + 1)
+        reg_b = self.ram_read(self.pc + 2)
+        self.alu('SUB', reg_a, reg_b)
 
     def MUL(self): # handles the MUL instruction
         reg_a = self.ram_read(self.pc + 1)
         reg_b = self.ram_read(self.pc + 2)
         self.alu('MUL', reg_a, reg_b)
-        #self.pc += 3
+
+    def DIV(self):  # handles the DIV instruction
+        reg_a = self.ram_read(self.pc + 1)
+        reg_b = self.ram_read(self.pc + 2)
+        self.alu('DIV', reg_a, reg_b)
+        
+    def AND(self):  # handles the AND instruction
+        reg_a = self.ram_read(self.pc + 1)
+        reg_b = self.ram_read(self.pc + 2)
+        self.alu('AND', reg_a, reg_b)
+        
+    def INC(self):  # handles the INC instruction
+        reg_a = self.ram_read(self.pc + 1)
+        self.alu("INC", reg_a=reg_a, reg_b=None)
+    
+    def PUSH(self):  # handles the PUSH instuction
+        # decrement stack pointer
+        self.reg[self.sp] -= 1
+        # get register value
+        reg_index = self.ram_read(self.pc + 1)
+        value = self.reg[reg_index]
+        # Store in memory
+        address_to_push_to = self.reg[self.sp]
+        self.ram[address_to_push_to] = value
+
+    def POP(self):
+        address_to_pop_from = self.reg[self.sp]
+        value = self.ram[address_to_pop_from]
+
+        # store in the given register
+        reg_index = self.ram_read(self.pc + 1)
+        self.reg[reg_index] = value
+
+        # increment SP
+        self.reg[self.sp] += 1
+
+        # self.pc += 2
+
 
     def HLT(self):  # hanldes the HLT instruction
         self.running = False
