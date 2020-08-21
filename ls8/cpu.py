@@ -22,6 +22,8 @@ class CPU:
             0b01100101: self.INC,
             0b01000101: self.PUSH,
             0b01000110: self.POP,
+            0b01010000: self.CALL,
+            0b00010001: self.RET,
             0b00000001: self.HLT 
         }
         self.sp = 7
@@ -90,8 +92,27 @@ class CPU:
         self.reg[self.sp] += 1
 
         # self.pc += 2
+    
+    def CALL(self):
+        #gets the address of the next instruction
+        return_address = self.pc + 2
+        # push on the stack
+        self.reg[self.sp] -= 1
+        address_to_push_to = self.reg[self.sp]
+        self.ram[address_to_push_to] = return_address
+        # set the pc to te subroutine address
+        reg_index = self.ram_read(self.pc + 1)
+        subroutine_address = self.reg[reg_index]
+        self.pc = subroutine_address
 
-
+    def RET(self):
+        # get return address from top of the stack
+        address_to_pop_from = self.reg[self.sp]
+        return_address = self.ram[address_to_pop_from]
+        self.reg[self.sp] += 1
+        #set pc to return address
+        self.pc = return_address
+        
     def HLT(self):  # hanldes the HLT instruction
         self.running = False
         #self.pc += 1
@@ -186,9 +207,18 @@ class CPU:
             if ir not in self.branchtable:
                 print(f"Not known {ir} at location{self.pc}")
                 sys.exit(1)
+            
+            ir_code = self.branchtable[ir]
+            ir_code()
+
+            mask = 0b00010000
+            does_ir_set_pc = (ir & mask) >> 4
+
+            if does_ir_set_pc == 1:
+                continue
             else:
-                ir_code = self.branchtable[ir]
-                ir_code()
+                # ir_code = self.branchtable[ir]
+                # ir_code()
 
                 mask = 0b11000000
                 num_params = (ir & mask) >> 6
